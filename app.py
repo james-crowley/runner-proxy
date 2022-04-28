@@ -98,14 +98,14 @@ def runner_api():
 
 # Route to Build/Task Agent
 @app.route('/circleci-agent/<version>/<os>/<arch>/circleci-agent', methods=["GET"])
-def runner_download(version, os, arch):
+def build_agent_download(version, os, arch):
     path_to_download = "binaries/{arch}/circleci-agent".format(arch=arch)
     return send_file(path_to_download, attachment_filename='circleci-agent')
 
 
 # Route to the Launch Agent or Proxy the Connect to Official Launch Agent Download
 @app.route('/circleci-launch-agent/<version>/<os>/<arch>/circleci-launch-agent', methods=["GET"])
-def runner_download(version, os, arch):
+def launch_agent_download(version, os, arch):
     if arch == "s390x" or arch == "ppc64le":
         path_to_download = "binaries/{arch}/circleci-launch-agent".format(arch=arch)
         return send_file(path_to_download, attachment_filename='circleci-launch-agent')
