@@ -5,7 +5,7 @@ ARG GROUP=demo
 ARG UID=1000
 ARG GID=1000
 ARG PORT=8080
-ARG PROXY_SERVER=localhost:8080
+ARG PROXY_SERVER=runner.circleci-demo-app.com
 
 # Set enviroment variable for Flask
 ENV PORT=${PORT}
