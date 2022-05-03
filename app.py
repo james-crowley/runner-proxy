@@ -45,6 +45,64 @@ def _proxy(*args, **kwargs):
     response = Response(resp.content, resp.status_code, headers)
     return response
 
+# Release Endpoint
+@app.route('/circleci-launch-agent/release.txt', methods=["GET"])
+def release():
+    # Print out User Agent
+    logging.info("User Agent Information: " + request.user_agent.string)
+
+    logging.info("Printing Headers we got from servers: ")
+    logging.info(request.headers)
+
+    resp = requests.request(
+            method=request.method,
+            url=request.url.replace(request.host_url, 'https://circleci-binary-releases.s3.amazonaws.com/'),
+            headers={key: value for (key, value) in request.headers if key != 'Host'},
+            data=request.get_data(),
+            cookies=request.cookies,
+            allow_redirects=False)
+
+    excluded_headers = []
+    headers = [(name, value) for (name, value) in resp.raw.headers.items()
+            if name.lower() not in excluded_headers]
+
+    response = Response(resp.content, resp.status_code, headers)
+
+    return response
+
+# Checksum Endpoint
+@app.route('/circleci-launch-agent/<version>/checksums.txt', methods=["GET"])
+def checksum(version):
+    # Print out User Agent
+    logging.info("User Agent Information: " + request.user_agent.string)
+
+    logging.info("Printing Headers we got from servers: ")
+    logging.info(request.headers)
+
+    resp = requests.request(
+            method=request.method,
+            url=request.url.replace(request.host_url, 'https://circleci-binary-releases.s3.amazonaws.com/'),
+            headers={key: value for (key, value) in request.headers if key != 'Host'},
+            data=request.get_data(),
+            cookies=request.cookies,
+            allow_redirects=False)
+
+    excluded_headers = []
+    headers = [(name, value) for (name, value) in resp.raw.headers.items()
+            if name.lower() not in excluded_headers]
+
+    # Generate Checksums and add them to the official checksums
+    s390x_checksum = sha256sum("binaries/s390x/circleci-launch-agent")
+    ppc64le_checksum = sha256sum("binaries/ppc64le/circleci-launch-agent")
+
+    s390x_string = s390x_checksum + " *linux/s390x/circleci-launch-agent\n"
+    ppc64le_string = ppc64le_checksum + " *linux/ppc64le/circleci-launch-agent\n"
+    context_string = resp.content.decode("utf-8") + s390x_string + ppc64le_string
+
+    response = Response(str.encode(context_string), resp.status_code, headers)
+
+    return response
+
 
 # Download Information Endpoint
 @app.route('/api/v2/tasks/download', methods=["GET"])
