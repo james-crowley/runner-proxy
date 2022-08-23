@@ -70,6 +70,32 @@ def release():
 
     return response
 
+
+@app.route('/circleci-agent/release.txt', methods=["GET"])
+def release():
+    # Print out User Agent
+    logging.info("User Agent Information: " + request.user_agent.string)
+
+    logging.info("Printing Headers we got from servers: ")
+    logging.info(request.headers)
+
+    resp = requests.request(
+            method=request.method,
+            url=request.url.replace(request.host_url, 'https://circleci-binary-releases.s3.amazonaws.com/'),
+            headers={key: value for (key, value) in request.headers if key != 'Host'},
+            data=request.get_data(),
+            cookies=request.cookies,
+            allow_redirects=False)
+
+    excluded_headers = []
+    headers = [(name, value) for (name, value) in resp.raw.headers.items()
+            if name.lower() not in excluded_headers]
+
+    response = Response(resp.content, resp.status_code, headers)
+
+    return response
+
+
 # Checksum Endpoint
 @app.route('/circleci-launch-agent/<version>/checksums.txt', methods=["GET"])
 def checksum(version):
