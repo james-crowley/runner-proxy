@@ -47,7 +47,7 @@ def _proxy(*args, **kwargs):
 
 # Release Endpoint
 @app.route('/circleci-launch-agent/release.txt', methods=["GET"])
-def release():
+def release_launch_agent():
     # Print out User Agent
     logging.info("User Agent Information: " + request.user_agent.string)
 
@@ -72,7 +72,7 @@ def release():
 
 
 @app.route('/circleci-agent/release.txt', methods=["GET"])
-def release():
+def release_agent():
     # Print out User Agent
     logging.info("User Agent Information: " + request.user_agent.string)
 
